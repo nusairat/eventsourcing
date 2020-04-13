@@ -12,6 +12,12 @@ use reqwest::StatusCode;
 pub struct OrgEventStore {
     host: String,
     port: u16,
+    user: Option<UserAuth>
+}
+
+struct UserAuth {
+    username: String,
+    password: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -28,6 +34,19 @@ impl OrgEventStore {
         OrgEventStore {
             host: host.to_owned(),
             port,
+            user: None,
+        }
+    }
+
+    pub fn new_with_auth(host: &str, port: u16. user: String, password: String) -> OrgEventStore {
+        user = UserAuth {
+            username: user,
+            password: password
+        };
+        OrgEventStore {
+            host: host.to_owned(),
+            port,
+            user: Some(user),
         }
     }
 
@@ -67,7 +86,14 @@ impl EventStore for OrgEventStore {
         let url = self.build_stream_url(stream);
         let headers = generate_headers();
 
-        match client.post(&url).json(&se).headers(headers).send() {
+        let builder = client.post(&url).json(&se).headers(headers);
+
+        // Set the User if it exists
+        if let Some(user) = self.user {
+            builder.basic_auth(user.username, Some(user.password))
+        }
+
+        match .send() {
             Ok(response) => {
                 if response.status() == StatusCode::CREATED {
                     Ok(ce)

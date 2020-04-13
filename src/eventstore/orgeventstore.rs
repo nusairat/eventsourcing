@@ -38,7 +38,7 @@ impl OrgEventStore {
         }
     }
 
-    pub fn new_with_auth(host: &str, port: u16. user: String, password: String) -> OrgEventStore {
+    pub fn new_with_auth(host: &str, port: u16, user: String, password: String) -> OrgEventStore {
         user = UserAuth {
             username: user,
             password: password
@@ -93,7 +93,7 @@ impl EventStore for OrgEventStore {
             builder.basic_auth(user.username, Some(user.password))
         }
 
-        match .send() {
+        match builder.send() {
             Ok(response) => {
                 if response.status() == StatusCode::CREATED {
                     Ok(ce)
